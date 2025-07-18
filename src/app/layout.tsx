@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
@@ -8,7 +10,7 @@ const headerFont = Space_Grotesk({
   weight: "variable",
   display: "swap",
   variable: "--font-header",
-})
+});
 
 const bodyFont = Inter({
   subsets: ["latin"],
@@ -19,7 +21,7 @@ const bodyFont = Inter({
 
 export const metadata: Metadata = {
   title: "Keyst",
-  description: "Keyst is your go-to place for all your keyboard related needs."
+  description: "Keyst is your go-to place for all your keyboard related needs.",
 };
 
 export default function RootLayout({
@@ -29,7 +31,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${headerFont.variable} ${bodyFont.variable} antialiased`}>
+      <body
+        className={`${headerFont.variable} ${bodyFont.variable} antialiased`}
+      >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
         </ThemeProvider>
