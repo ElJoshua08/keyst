@@ -4,6 +4,11 @@ export interface AuthRepository {
   login(email: string, password: string): Promise<AuthUser | null>;
   signup(email: string, password: string): Promise<AuthUser | null>;
 
+  verifyOtp(
+    token_hash: string,
+    type: string
+  ): Promise<AuthUser | null>;
+
   getCurrentUser(): Promise<AuthUser | null>;
   logout(): Promise<void>;
 }

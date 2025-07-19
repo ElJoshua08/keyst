@@ -1,6 +1,10 @@
 "use client";
 
 import { loginAction } from "@/app/auth/get-started/actions";
+import {
+  type Login as LoginSchema,
+  login,
+} from "@/app/auth/get-started/schema";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,34 +24,11 @@ import {
 } from "@/components/ui/form";
 import { Input, InputPassword } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
-import z from "zod";
-
-const login = z.object({
-  email: z.email(),
-  password: z
-    .string()
-    .min(8)
-    .refine(
-      (val) =>
-        /* First validation for an uppercase */ val.toLowerCase() === val,
-      {
-        error: "Password must contain at least one uppercase letter",
-      }
-    )
-    .refine((val) => /* Second validation for a number */ val.match(/\d/), {
-      error: "Password must contain at least one number",
-    })
-    .refine(
-      (val) => /* Third validation for a special character */ val.match(/\W/),
-      {
-        error: "Password must contain at least one special character",
-      }
-    ),
-});
 
 export const Login = () => {
-  const form = useForm<z.infer<typeof login>>({
+  const form = useForm<LoginSchema>({
     resolver: zodResolver(login),
     defaultValues: {
       email: "",
@@ -55,19 +36,19 @@ export const Login = () => {
     },
   });
 
-  async function handleSubmit(data: z.infer<typeof login>) {
+  async function handleSubmit(data: LoginSchema) {
     await loginAction(data);
   }
 
   return (
-    <Card>
+    <Card className="min-w-md">
       <CardHeader>
         <CardTitle>Log-In</CardTitle>
         <CardDescription>Log-In into your account</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form>
+          <form className="space-y-12">
             <FormField
               name="email"
               control={form.control}
@@ -90,11 +71,12 @@ export const Login = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="inline-flex w-full justify-between items-center">Password <Link href="/auth/forgot-password" className="no-underline text-muted-foreground hover:underline hover:text-foreground">Forgot Password?</Link></FormLabel>
                   <FormControl>
                     <InputPassword
                       placeholder="Password"
-                      {...field}
+                      value={field.value}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />
@@ -104,8 +86,13 @@ export const Login = () => {
           </form>
         </Form>
       </CardContent>
-      <CardFooter>
-        <Button onClick={form.handleSubmit(handleSubmit)}>Log-In</Button>
+      <CardFooter className="flex justify-end mt-6">
+        <Button
+          onClick={form.handleSubmit(handleSubmit)}
+          loadOnClick
+        >
+          Log-In
+        </Button>
       </CardFooter>
     </Card>
   );
