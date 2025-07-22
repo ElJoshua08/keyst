@@ -3,6 +3,7 @@
 "use client";
 
 import "@/di/container";
+import { AuthenticationError } from "@/entities/errors/auth.error";
 import { AuthUser } from "@/entities/models/auth-user.entity";
 import { getUserController } from "@/interface-adapters/controllers/get-user.controller";
 import { createContext, useEffect, useState } from "react";
@@ -23,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     email: string;
     user_metadata: object;
   } | null>(null);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<AuthenticationError | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
