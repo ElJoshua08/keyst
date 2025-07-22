@@ -1,46 +1,51 @@
-"use client";
-import { container } from "tsyringe";
+// app/_providers/auth.provider.tsx
 
-import { AuthUser } from "@/entitites/auth-user.entity";
-import { AuthUseCase } from "@/useCases/auth.use-case";
-import { createContext, useContext, useEffect, useState } from "react";
+"use client";
+
+import "@/di/container";
+import { AuthUser } from "@/entities/models/auth-user.entity";
+import { getUserController } from "@/interface-adapters/controllers/get-user.controller";
+import { createContext, useEffect, useState } from "react";
 
 type AuthContextType = {
-  user: AuthUser | null;
-  loading: boolean;
+  user: {
+    email: string;
+    user_metadata: object;
+  } | null;
+  error: Error | null;
+  isLoading: boolean;
 };
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-});
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{
+    email: string;
+    user_metadata: object;
+  } | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const authUseCase = container.resolve(AuthUseCase);
+    let _ignore = false;
 
-      try {
-        const currentUser = await authUseCase.getCurrentUser();
-        setUser(currentUser);
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
+    async function getUser() {
+      const user = await getUserController();
+
+      setUser(user);
+      setIsLoading(false);
+    }
+
+    getUser();
+
+    return () => {
+      _ignore = true;
     };
-
-    fetchUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, error, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

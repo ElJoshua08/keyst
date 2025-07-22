@@ -1,38 +1,61 @@
 "use server";
 
-import { login, Login } from "@/app/auth/get-started/schema";
-import "@/container";
+import { login, Login, Signup, signup } from "@/app/auth/get-started/schema";
+import { getInjection } from "@/di/container";
+import { AuthenticationError } from "@/entities/errors/auth.error";
 
-import { AuthUseCase } from "@/useCases/auth.use-case";
 import { redirect } from "next/navigation";
-import { container } from "tsyringe";
 
 export async function loginAction(data: Login) {
-
   const validation = login.safeParse(data);
   if (!validation.success) {
-    throw new Error(validation.error.message);
-  }
-
-  const useCase = container.resolve(AuthUseCase);
-  const user = await useCase.login(data.email, data.password);
-
-  if (!user) {
     return {
       error: {
-        message: "Invalid Credentials",
+        message: validation.error.message,
       },
     };
   }
 
-  redirect("/dashboard")
+  const { email, password } = data;
+
+  const authService = getInjection("IAuthService");
+
+  try {
+    await authService.login(email, password);
+  } catch (e) {
+    const error = e as AuthenticationError;
+    return {
+      error: {
+        message: error.message,
+      },
+    };
+  }
+
+  redirect("/account");
 }
 
-export async function signupAction(data: {
-  email: string;
-  password: string;
-  confirmPassword: string;
-}) {
-  const useCase = container.resolve(AuthUseCase);
-  const result = await useCase.signup(data.email, data.password);
+export async function signupAction(data: Signup) {
+  const validation = signup.safeParse(data);
+  if (!validation.success) {
+    return {
+      error: {
+        message: validation.error.message,
+      },
+    };
+  }
+
+  const { email, password } = data;
+
+  const authService = getInjection("IAuthService");
+
+  try {
+    await authService.signup(email, password);
+  } catch (e) {
+    const error = e as AuthenticationError;
+    return {
+      error: {
+        message: error.message,
+      },
+    };
+  }
 }

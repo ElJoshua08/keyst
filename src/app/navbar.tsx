@@ -6,11 +6,12 @@ import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AuthUser } from "@/entitites/auth-user.entity";
-import { useAuth } from "@/providers/auth.provider";
+import { useAuth } from "@/hooks/useAuth";
+import { CircleUserRoundIcon } from "lucide-react";
 import Link from "next/link";
 
 export const Navbar = () => {
@@ -40,17 +41,37 @@ export const Navbar = () => {
   );
 };
 
-const AccountAvatar = ({ user }: { user: AuthUser }) => {
+const AccountAvatar = ({
+  user,
+}: {
+  user: {
+    email: string;
+    user_metadata: object;
+  };
+}) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Avatar>
+        <Avatar className="size-10 cursor-pointer">
           <AvatarImage />
-          <AvatarFallback>{user.email.split("")[0]}</AvatarFallback>
+          <AvatarFallback className="font-header uppercase">
+            {user.email.split("")[0]}
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuLabel>Account</DropdownMenuLabel>
+      <DropdownMenuContent
+        align="end"
+        sideOffset={12}
+      >
+        <DropdownMenuLabel className="text-sm">Account</DropdownMenuLabel>
+        <DropdownMenuItem>
+          <Link
+            href="/account"
+            className="inline-flex items-center justify-start gap-x-2 w-full h-full text-base"
+          >
+            <CircleUserRoundIcon /> Go to Account
+          </Link>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

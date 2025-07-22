@@ -1,11 +1,11 @@
+"use server";
+
+import "@/core/di/container";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest } from "next/server";
 
+import { getInjection } from "@/di/container";
 import { redirect } from "next/navigation";
-
-import "@/container";
-import { AuthUseCase } from "@/useCases/auth.use-case";
-import { container } from "tsyringe";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -14,16 +14,17 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get("next") ?? "/";
 
   if (token_hash && type) {
-    const useCase = container.resolve(AuthUseCase);
-    const success = await useCase.verifyOtp(token_hash, type);
+    const authService = getInjection("IAuthService");
 
-    if (!success) {
-      // redirect the user to an error page with some instructions
-      redirect("auth/error?cause=invalid-otp");
+    try {
+      await authService.verifyOtp(token_hash, type);
+
+      redirect(next);
+    } catch (e) {
+      const error = e as Error;
+      redirect("auth/error?cause=" + error.cause);
     }
 
-    // redirect user to specified redirect URL or root of app
-    redirect(next);
   }
 
   // redirect the user to an error page with some instructions

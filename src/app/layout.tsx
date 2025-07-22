@@ -1,7 +1,5 @@
 import "reflect-metadata";
 
-import "@/container";
-
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/providers/auth.provider";
 import type { Metadata } from "next";
